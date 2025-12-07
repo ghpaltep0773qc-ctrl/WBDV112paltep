@@ -1,0 +1,349 @@
+<?php
+// Directory_EventStyling.php — Event Styling category page
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Event Styling — Everest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#f5f8fe; --text:#0d1117; --muted:#5b6775; --link:#0c63ff; --border:#e6ecf7;
+      --right-col:260px; --ink:#0d1117;
+      --card:#ffffff; --card-soft:#edf3ff;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;height:100%}
+    body{
+      font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      background:var(--bg); color:var(--text);
+      min-height:100vh; display:flex; flex-direction:column;
+    }
+
+    /* ===== Header (same as other pages) ===== */
+    .header{width:100%; padding:14px 24px; display:grid; gap:16px;
+            grid-template-columns:240px 1fr var(--right-col); align-items:center;
+            background:linear-gradient(#fafcfe,#f1f5fb); border-bottom:1px solid var(--border)}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.5px;min-width:0}
+    .brand-logo{width:44px;height:44px;display:grid;place-items:center;text-decoration:none;flex:0 0 44px}
+    .brand-logo img{width:44px;height:44px;display:block}
+    .brand h1{font-size:16px;margin:0;line-height:1.05;white-space:nowrap}
+
+    .mast{display:grid;grid-template-rows:auto auto;justify-items:center;align-items:center;row-gap:10px;min-width:0}
+    .search{position:relative;width:min(620px,52vw)}
+    .search input{width:100%; height:44px; padding:10px 16px 10px 44px; border-radius:999px;
+                  background:#fff; border:2px solid #133a60; font-size:14px; color:#0d1117;
+                  outline:none; box-shadow:inset 0 0 0 1px rgba(19,58,96,.15); transition:.2s}
+    .search input:focus{border-color:#0c63ff; box-shadow:0 0 0 3px rgba(12,99,255,.15)}
+    .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);
+                width:20px;height:20px;stroke:#0d2642;stroke-width:1.8;fill:none;opacity:.9;pointer-events:none}
+
+    .nav{display:flex; align-items:center; width:100%; justify-content:space-evenly;
+         gap:clamp(24px,5vw,64px); flex-wrap:nowrap; white-space:nowrap; margin:0; padding:0 12px}
+    .nav a{display:inline-flex; align-items:center; gap:6px; padding:10px 14px;
+           font-size:15px; text-decoration:none; color:#1f2937; font-weight:600; letter-spacing:.2px}
+    .nav a.active{color:var(--link)}
+
+    .right-actions{justify-self:end; width:var(--right-col, 260px); display:flex;
+                   align-items:center; justify-content:space-between; gap:24px}
+    .toplink,.toplink:link,.toplink:visited{display:inline-flex; align-items:center; gap:6px;
+           text-decoration:none; color:var(--link) !important; font-size:18px !important;
+           font-weight:700 !important; line-height:1; padding:0}
+    .toplink:hover{text-decoration:underline}
+    .account{position:relative; display:flex; align-items:center}
+    .account-toggle{background:none; border:0; cursor:pointer; font:inherit; color:var(--link);
+                    padding:6px 0; display:inline-flex; align-items:center; gap:6px}
+    .toplink .caret{ width:16px; height:16px; stroke:currentColor; stroke-width:2; fill:none;
+                     transition:transform .15s ease }
+    .account .dropdown{ display:none; position:absolute; top:100%; right:0; margin-top:8px;
+                        min-width:200px; background:#fff; border:1px solid var(--border);
+                        border-radius:10px; box-shadow:0 10px 26px rgba(20,35,57,.12); padding:8px; z-index:50 }
+    .account:hover .dropdown, .account:focus-within .dropdown{ display:block }
+    .account:focus-within .caret{ transform:rotate(180deg) }
+    .dropdown a{ display:flex; align-items:center; gap:8px; padding:10px 12px;
+                 border-radius:8px; color:#0d1117; text-decoration:none; font-weight:600; font-size:14px }
+    .dropdown a:hover{ background:#f5f8fe }
+
+    /* ===== HERO ===== */
+    #es-hero{
+      height:70vh;
+      min-height:520px;
+      position:relative;
+      background:url('eventstylingbg.jpg') center 55% / cover no-repeat;
+      background-color:#c7c2bb; /* fallback */
+    }
+    #es-hero::after{
+      content:""; position:absolute; inset:0;
+      background:linear-gradient(to bottom, rgba(0,0,0,.40), rgba(0,0,0,.22));
+    }
+    #es-hero .hero-title{
+      position:absolute; left:60px; bottom:200px; margin:0;
+      color:#fff; z-index:1;
+      font-family:"Playfair Display", Georgia, serif;
+      font-weight:100; letter-spacing:1px;
+      font-size:clamp(72px, 12vw, 120px); line-height:.9;
+      text-shadow:0 12px 36px rgba(0,0,0,.55);
+    }
+
+    /* ===== CONTENT WRAP ===== */
+    .wrap{ max-width:1120px; margin:0 auto; padding:32px 20px 70px }
+
+    .es-intro{
+      text-align:center;
+      max-width:680px;
+      margin:0 auto 30px;
+      font-size:14px;
+      color:#4b5563;
+      line-height:1.6;
+    }
+
+    /* ===== PACKAGE GRID ===== */
+    .es-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:26px;
+      justify-items:center;
+    }
+    .es-package{ width:100%; max-width:320px; }
+
+    .es-photo{
+      width:100%;
+      height:220px;
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 16px 36px rgba(15,23,42,.25);
+      margin-bottom:14px;
+    }
+    .es-photo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .es-card{
+      background:#fff;
+      border-radius:18px;
+      border:1px solid #d1d9ea;
+      padding:16px 18px 18px;
+      font-size:13px;
+      line-height:1.5;
+      box-shadow:0 10px 30px rgba(15,23,42,.10);
+    }
+    .es-title{
+      text-align:center;
+      font-weight:700;
+      margin-bottom:4px;
+    }
+    .es-price{
+      text-align:center;
+      font-weight:700;
+      margin-bottom:10px;
+    }
+    .es-list{
+      margin:0;
+      padding-left:18px;
+    }
+    .es-list li{ margin-bottom:4px; }
+    .es-note{
+      margin-top:8px;
+      font-size:12px;
+      color:#4b5563;
+    }
+
+    /* ===== Footer ===== */
+    .site-footer{ background:#2f2f2f; color:#e8e8e8; border-top:1px solid #222; margin-top:auto; width:100% }
+    .footer-wrap{ max-width:1120px; margin:0 auto; padding:22px 20px; display:grid;
+                  grid-template-columns:1fr 1fr 1fr; gap:24px; align-items:flex-start }
+    .site-footer h4{ margin:2px 0 14px; font-weight:700; font-size:20px }
+    .footer-col .tagline{ margin-top:10px; font-size:12px; color:#c9c9c9; max-width:240px }
+    .socials{ display:flex; gap:12px; align-items:center }
+    .icon{ width:36px; height:36px; display:grid; place-items:center;
+           border:1px solid #bdbdbd; border-radius:6px; text-decoration:none }
+    .icon svg{ width:22px; height:22px; fill:#eaeaea }
+    .icon:hover{ background:#3a3a3a }
+    .mid{text-align:center}
+    .links{ list-style:none; margin:0; padding:0 }
+    .links li{ margin:6px 0 }
+    .links a{ color:#e8e8e8; text-decoration:none; font-size:12px; letter-spacing:.6px }
+    .links a:hover{text-decoration:underline}
+    .contact{ list-style:none; margin:0; padding:0 }
+    .contact li{ display:flex; align-items:center; gap:10px; margin:8px 0; font-size:13px }
+    .contact a{ color:#e8e8e8; text-decoration:none }
+    .ci{ display:inline-grid; place-items:center; width:22px; height:22px; border:1px solid #bdbdbd; border-radius:6px }
+    .ci svg{ width:14px; height:14px; fill:#eaeaea }
+    .copyright{ background:#ffffff; color:#2b2b2b; text-align:center; padding:6px 10px;
+                font-size:12px; border-top:1px solid #dcdcdc }
+
+    /* ===== Responsive ===== */
+    @media (max-width:980px){
+      .header{grid-template-columns:1fr}
+      .right-actions{justify-content:center; width:100%}
+      .nav{gap:22px; flex-wrap:wrap; white-space:normal}
+      .es-grid{grid-template-columns:1fr; justify-items:stretch}
+      .es-package{max-width:none}
+      #es-hero{height:260px}
+    }
+  </style>
+</head>
+<body>
+<header class="header">
+  <div class="brand">
+    <a class="brand-logo" href="User_Homepage.php" title="Everest Home">
+      <img src="everest_logo.png" alt="Everest logo" width="44" height="44"/>
+    </a>
+    <h1>EVEREST<br>
+      <span style="font-weight:600;font-size:11px;opacity:.7">
+        WHERE EVERY BOOKING CLIMBS TO SUCCESS
+      </span>
+    </h1>
+  </div>
+
+  <div class="mast">
+    <div class="search" role="search">
+      <input type="search" placeholder="Search" aria-label="Search"/>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="10" cy="10" r="6"></circle>
+        <line x1="14.5" y1="14.5" x2="21" y2="21"></line>
+      </svg>
+    </div>
+    <nav class="nav" aria-label="Primary">
+      <a href="User_Homepage.php">Home</a>
+      <a class="active" href="directory.php">Directory</a>
+      <a href="Packages.php">Packages</a>
+      <a href="Catering_Services.php">Catering Services</a>
+      <a href="Contact.php">Contact</a>
+      <a href="#">Gallery</a>
+    </nav>
+  </div>
+
+  <div class="right-actions">
+    <a class="toplink" href="Book.php">Book</a>
+    <div class="account">
+      <button class="toplink account-toggle" type="button" aria-haspopup="menu" aria-expanded="false">
+        <?php $acctLabel = $_SESSION['name'] ?? 'Account'; echo htmlspecialchars($acctLabel); ?>
+        <svg class="caret" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 9l5 5 5-5" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="dropdown" role="menu">
+        <a class="dropdown-item" href="Account.php" role="menuitem">Account</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section id="es-hero" aria-label="Event Styling hero">
+  <h1 class="hero-title">EVENT STYLING</h1>
+</section>
+
+<main class="wrap">
+  <p class="es-intro">
+    Design the perfect atmosphere for your celebration. From elegant backdrops to centerpieces and lights,
+    our styling packages transform your venue into a space that matches your story and theme.
+  </p>
+
+  <div class="es-grid">
+    <!-- AURA PACKAGE -->
+    <section class="es-package">
+      <div class="es-photo">
+        <img src="es_aura.jpg" alt="Aura Styling Package sample">
+      </div>
+      <article class="es-card">
+        <div class="es-title">AURA Styling Package</div>
+        <div class="es-price">Php 20,000</div>
+        <ul class="es-list">
+          <li>Basic stage styling and couple backdrop</li>
+          <li>Entrance arch with artificial florals</li>
+          <li>Simple table centerpieces (up to 10 tables)</li>
+          <li>Themed cake table styling</li>
+          <li>Use of styling props (non-exclusive)</li>
+        </ul>
+        <p class="es-note">
+          Best for intimate events needing clean, simple styling with a cohesive look.
+        </p>
+      </article>
+    </section>
+
+    <!-- ELEGANCE PACKAGE -->
+    <section class="es-package">
+      <div class="es-photo">
+        <img src="es_elegance.jpg" alt="Elegance Styling Package sample">
+      </div>
+      <article class="es-card">
+        <div class="es-title">ELEGANCE Styling Package</div>
+        <div class="es-price">Php 30,000</div>
+        <ul class="es-list">
+          <li>Premium couple backdrop with layered drapes &amp; florals</li>
+          <li>Entrance tunnel or photo wall</li>
+          <li>Styled couple table and cake table</li>
+          <li>Floral / candle centerpieces (up to 15 tables)</li>
+          <li>Basic ceiling treatment (fabric and lights)</li>
+        </ul>
+        <p class="es-note">
+          Ideal for mid-sized weddings that want a refined look with more details and dimension.
+        </p>
+      </article>
+    </section>
+
+    <!-- GRAND LUXE PACKAGE -->
+    <section class="es-package">
+      <div class="es-photo">
+        <img src="es_grandluxe.jpg" alt="Grand Luxe Styling Package sample">
+      </div>
+      <article class="es-card">
+        <div class="es-title">GRAND LUXE Styling Package</div>
+        <div class="es-price">Php 45,000</div>
+        <ul class="es-list">
+          <li>Full stage design with layered backdrop and premium florals</li>
+          <li>Grand entrance design (arches / tunnel / photo corner)</li>
+          <li>Centerpieces for up to 20 tables (flowers, candles, runners)</li>
+          <li>Ceiling treatment with fabric, lanterns and fairy lights</li>
+          <li>VIP lounge / photo-op corner styling</li>
+        </ul>
+        <p class="es-note">
+          Perfect for grand receptions where styling is the centerpiece of the overall experience.
+        </p>
+      </article>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-wrap">
+    <div class="footer-col">
+      <h4>Social Media</h4>
+      <div class="socials">
+        <a href="#" aria-label="Tumblr" class="icon"><svg viewBox="0 0 24 24"><path d="M14.5 20.8c-3.2 0-4.6-2-4.6-4.3v-4.6H7.5V9c1.7-.6 2.5-1.9 2.9-3.4h1.7v3h2.8v2.3h-2.8v4.3c0 1 .5 1.9 1.9 1.9.5 0 1.2-.1 1.7-.4v2.2c-.6.6-1.8 1-3.2 1z"/></svg></a>
+        <a href="#" aria-label="X" class="icon"><svg viewBox="0 0 24 24"><path d="M3 3h3.7l5.2 6.9L16.9 3H21l-7.1 8.9L21 21h-3.7l-5.6-7.5L7.1 21H3l7.8-9.8L3 3z"/></svg></a>
+        <a href="#" aria-label="Instagram" class="icon"><svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5zm6-2.6a1 1 0 1 1-1 1 1 1 0 0 1 1-1z"/></svg></a>
+      </div>
+      <p class="tagline">Event Management System • Your way to book an event</p>
+    </div>
+
+    <div class="footer-col mid">
+      <h4>Quick Links</h4>
+      <ul class="links">
+        <li><a href="#about">ABOUT US</a></li>
+        <li><a href="#contact">CONTACT US</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contact Info</h4>
+      <ul class="contact">
+        <li><span class="ci"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z"/></svg></span> Metro Manila, Philippines</li>
+        <li><span class="ci"><svg viewBox="0 0 24 24"><path d="M2 5l10 7 10-7v12H2zM12 10L2 5h20z"/></svg></span> <a href="mailto:Everest@email.com">Everest@email.com</a></li>
+        <li><span class="ci"><svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.3 6.6 6.6l2.2-2.2c.3-.3.8-.4 1.2-.3 1 .3 2 .5 3.1 .5 .7 0 1.3 .6 1.3 1.3v3.3c0 .7 -.6 1.3 -1.3 1.3C9.4 21.3 2.7 14.6 2.7 6.3c0 -.7 .6 -1.3 1.3 -1.3H7c.7 0 1.3 .6 1.3 1.3 0 1.1 .2 2.1 .5 3.1 .1 .4 0 .9 -.3 1.2l-1.9 2.2z"/></svg></span> 12345678901</li>
+      </ul>
+    </div>
+  </div>
+  <div class="copyright">©Copyright <?php echo date('Y'); ?>, Everest</div>
+</footer>
+</body>
+</html>
